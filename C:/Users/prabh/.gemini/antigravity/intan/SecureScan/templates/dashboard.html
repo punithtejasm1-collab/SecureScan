@@ -1,0 +1,132 @@
+{% extends 'base.html' %}
+
+{% block title %}SecureScan - Cyber Security Dashboard{% endblock %}
+{% block page_title %}Security Dashboard{% endblock %}
+
+{% block content %}
+<!-- Top Metrics Row -->
+<div class="row g-3 mb-4">
+  <div class="col-md-3">
+    <div class="cyber-card">
+      <div class="metric-label"><i class="fa-solid fa-radar me-1 text-neon-blue"></i> Total Scans Run</div>
+      <div class="metric-value text-neon-blue" id="stat-total-scans">-</div>
+      <small class="text-muted">Recorded in SQLite database</small>
+    </div>
+  </div>
+
+  <div class="col-md-3">
+    <div class="cyber-card">
+      <div class="metric-label"><i class="fa-solid fa-door-open me-1 text-neon-green"></i> Open Ports Discovered</div>
+      <div class="metric-value text-neon-green" id="stat-open-ports">-</div>
+      <small class="text-muted">Active listening services</small>
+    </div>
+  </div>
+
+  <div class="col-md-3">
+    <div class="cyber-card">
+      <div class="metric-label"><i class="fa-solid fa-door-closed me-1 text-neon-yellow"></i> Closed & Filtered Ports</div>
+      <div class="metric-value text-neon-yellow" id="stat-closed-ports">-</div>
+      <small class="text-muted">Blocked / Unresponsive ports</small>
+    </div>
+  </div>
+
+  <div class="col-md-3">
+    <div class="cyber-card">
+      <div class="metric-label"><i class="fa-solid fa-stopwatch me-1 text-neon-green"></i> Avg Scan Duration</div>
+      <div class="metric-value text-neon-green" id="stat-avg-duration">-s</div>
+      <small class="text-muted">Multi-threaded execution rate</small>
+    </div>
+  </div>
+</div>
+
+<!-- Charts & Quick Action Row -->
+<div class="row g-3 mb-4">
+  <!-- Chart 1: Open vs Closed Ports -->
+  <div class="col-md-5">
+    <div class="cyber-card h-100">
+      <div class="cyber-card-header">
+        <h6 class="cyber-card-title"><i class="fa-solid fa-chart-pie me-2"></i> Port Status Distribution</h6>
+      </div>
+      <div class="d-flex justify-content-center align-items-center" style="height: 240px;">
+        <canvas id="portStatusChart"></canvas>
+      </div>
+    </div>
+  </div>
+
+  <!-- Chart 2: Top Detected Services -->
+  <div class="col-md-7">
+    <div class="cyber-card h-100">
+      <div class="cyber-card-header">
+        <h6 class="cyber-card-title"><i class="fa-solid fa-chart-simple me-2"></i> Top Discovered Services</h6>
+      </div>
+      <div style="height: 240px;">
+        <canvas id="topServicesChart"></canvas>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Recent Scans & Security Status Row -->
+<div class="row g-3">
+  <div class="col-md-8">
+    <div class="cyber-card">
+      <div class="cyber-card-header">
+        <h6 class="cyber-card-title"><i class="fa-solid fa-clock-rotate-left me-2"></i> Recent Scan Executions</h6>
+        <a href="/history" class="btn btn-sm btn-cyber-outline">View All History</a>
+      </div>
+
+      <div class="table-responsive">
+        <table class="cyber-table">
+          <thead>
+            <tr>
+              <th>Target Host</th>
+              <th>IP Address</th>
+              <th>Open Ports</th>
+              <th>Risk Score</th>
+              <th>Date & Time</th>
+              <th>Action</th>
+            </tr>
+          </thead>
+          <tbody id="recent-scans-tbody">
+            <tr>
+              <td colspan="6" class="text-center text-muted py-3">Loading recent scan records...</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+
+  <!-- Security Overview & Quick Launch Card -->
+  <div class="col-md-4">
+    <div class="cyber-card mb-3">
+      <div class="cyber-card-header">
+        <h6 class="cyber-card-title"><i class="fa-solid fa-shield-virus me-2"></i> Overall Security Status</h6>
+      </div>
+      <div class="text-center py-2">
+        <div id="security-status-badge" class="badge bg-success p-2 px-3 fs-6 mb-2">SECURE</div>
+        <p class="text-muted small mb-0">Based on recent vulnerability exposure scores.</p>
+      </div>
+    </div>
+
+    <div class="cyber-card">
+      <div class="cyber-card-header">
+        <h6 class="cyber-card-title"><i class="fa-solid fa-bolt me-2"></i> Quick Target Scanner</h6>
+      </div>
+      <form action="/scanner" method="GET">
+        <div class="mb-3">
+          <label class="form-label small text-muted">Target Host / IP Address</label>
+          <input type="text" name="target" class="form-control cyber-input" placeholder="e.g. 127.0.0.1 or example.com" required>
+        </div>
+        <button type="submit" class="btn btn-cyber-primary w-100">
+          <i class="fa-solid fa-play me-2"></i> Launch Quick Scan
+        </button>
+      </form>
+    </div>
+  </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script src="{{ url_for('static', filename='js/dashboard.js') }}"></script>
+{% endblock %}
