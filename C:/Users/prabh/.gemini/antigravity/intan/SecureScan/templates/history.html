@@ -1,0 +1,118 @@
+{% extends 'base.html' %}
+
+{% block title %}SecureScan - Scan History Engine{% endblock %}
+{% block page_title %}Scan History Database{% endblock %}
+
+{% block content %}
+<div class="cyber-card mb-4">
+  <div class="cyber-card-header">
+    <h6 class="cyber-card-title"><i class="fa-solid fa-clock-rotate-left me-2"></i> Audit Records Repository</h6>
+    
+    <div class="d-flex gap-3">
+      <input type="text" id="history-search" class="form-control cyber-input" style="width: 250px;" placeholder="Filter by Target IP or Host...">
+      <button id="btn-refresh-history" class="btn btn-sm btn-cyber-outline">
+        <i class="fa-solid fa-rotate me-1"></i> Refresh
+      </button>
+    </div>
+  </div>
+
+  <div class="table-responsive">
+    <table class="cyber-table">
+      <thead>
+        <tr>
+          <th>Date & Time</th>
+          <th>Target Host</th>
+          <th>Resolved IP</th>
+          <th>Ports Range</th>
+          <th>Open Ports</th>
+          <th>Duration</th>
+          <th>Risk Score</th>
+          <th>Actions</th>
+        </tr>
+      </thead>
+      <tbody id="history-tbody">
+        <tr>
+          <td colspan="8" class="text-center text-muted py-4">Loading audit scan history from SQLite...</td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+document.addEventListener('DOMContentLoaded', () => {
+  loadHistory();
+
+  document.getElementById('btn-refresh-history').addEventListener('click', loadHistory);
+  document.getElementById('history-search').addEventListener('input', filterHistory);
+
+  let allScans = [];
+
+  async function loadHistory() {
+    try {
+      const res = await fetch('/api/scans');
+      allScans = await res.json();
+      renderHistory(allScans);
+    } catch (err) {
+      console.error('Error fetching scan history:', err);
+    }
+  }
+
+  function filterHistory() {
+    const q = document.getElementById('history-search').value.toLowerCase();
+    const filtered = allScans.filter(s => 
+      s.target.toLowerCase().includes(q) || s.ip.toLowerCase().includes(q)
+    );
+    renderHistory(filtered);
+  }
+
+  function renderHistory(scans) {
+    const tbody = document.getElementById('history-tbody');
+    if (scans.length === 0) {
+      tbody.innerHTML = `<tr><td colspan="8" class="text-center text-muted py-4">No scan records found.</td></tr>`;
+      return;
+    }
+
+    tbody.innerHTML = scans.map(s => {
+      let riskBadge = 'badge-open';
+      if (s.risk_score > 50) riskBadge = 'badge-closed';
+      else if (s.risk_score > 20) riskBadge = 'badge-filtered';
+
+      return `
+        <tr>
+          <td><small class="text-muted">${s.created_at}</small></td>
+          <td><strong class="text-light">${s.target}</strong></td>
+          <td><code>${s.ip}</code></td>
+          <td><small>${s.start_port} - ${s.end_port}</small></td>
+          <td><span class="badge badge-open">${s.open_ports_count} Open</span></td>
+          <td><small class="text-muted">${s.duration_seconds}s</small></td>
+          <td><span class="badge ${riskBadge}">${s.risk_score} / 100</span></td>
+          <td>
+            <div class="d-flex gap-2">
+              <a href="/report/${s.id}" class="btn btn-sm btn-cyber-outline py-0 px-2" title="View Full Report">
+                <i class="fa-solid fa-file-lines"></i>
+              </a>
+              <button onclick="deleteScan('${s.id}')" class="btn btn-sm btn-cyber-danger py-0 px-2" title="Delete Record">
+                <i class="fa-solid fa-trash"></i>
+              </button>
+            </div>
+          </td>
+        </tr>
+      `;
+    }).join('');
+  }
+
+  window.deleteScan = async (id) => {
+    if (!confirm('Are you sure you want to delete this scan audit record?')) return;
+    try {
+      await fetch(`/api/scans/${id}`, { method: 'DELETE' });
+      loadHistory();
+    } catch (err) {
+      alert('Failed to delete scan record.');
+    }
+  };
+});
+</script>
+{% endblock %}
