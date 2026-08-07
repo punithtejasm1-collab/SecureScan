@@ -1,0 +1,181 @@
+{% extends 'base.html' %}
+
+{% block title %}SecureScan - Multi-Threaded Port Scanner{% endblock %}
+{% block page_title %}Multi-Threaded Port Scanner{% endblock %}
+
+{% block content %}
+<!-- Scanner Configuration Controls Card -->
+<div class="cyber-card mb-4">
+  <div class="cyber-card-header">
+    <h6 class="cyber-card-title"><i class="fa-solid fa-sliders me-2"></i> Scan Execution Control Panel</h6>
+    <div class="d-flex gap-2">
+      <button class="btn btn-sm btn-cyber-outline" id="preset-top20">Top 20 Ports</button>
+      <button class="btn btn-sm btn-cyber-outline" id="preset-top100">Top 100 Ports</button>
+      <button class="btn btn-sm btn-cyber-outline" id="preset-all1000">Standard (1-1000)</button>
+    </div>
+  </div>
+
+  <form id="scanner-form" class="row g-3">
+    <!-- Target Input -->
+    <div class="col-md-4">
+      <label class="form-label small text-muted">Target Hostname or IP Address <span class="text-neon-red">*</span></label>
+      <div class="input-group">
+        <span class="input-group-text bg-dark border-secondary border-opacity-25 text-neon-green"><i class="fa-solid fa-globe"></i></span>
+        <input type="text" id="target-input" class="form-control cyber-input" placeholder="e.g. 127.0.0.1 or scanme.nmap.org" value="{{ target_preset or '' }}" required>
+      </div>
+    </div>
+
+    <!-- Start Port -->
+    <div class="col-md-2">
+      <label class="form-label small text-muted">Start Port</label>
+      <input type="number" id="start-port-input" class="form-control cyber-input" min="1" max="65535" value="1" required>
+    </div>
+
+    <!-- End Port -->
+    <div class="col-md-2">
+      <label class="form-label small text-muted">End Port</label>
+      <input type="number" id="end-port-input" class="form-control cyber-input" min="1" max="65535" value="1000" required>
+    </div>
+
+    <!-- Socket Timeout -->
+    <div class="col-md-2">
+      <label class="form-label small text-muted">Timeout (Seconds)</label>
+      <select id="timeout-select" class="form-select cyber-select">
+        <option value="0.3">0.3s (Ultra Fast)</option>
+        <option value="0.5">0.5s (Fast)</option>
+        <option value="1.0" selected>1.0s (Balanced)</option>
+        <option value="2.0">2.0s (Thorough)</option>
+      </select>
+    </div>
+
+    <!-- Thread Pool Workers -->
+    <div class="col-md-2">
+      <label class="form-label small text-muted">Thread Count</label>
+      <select id="threads-select" class="form-select cyber-select">
+        <option value="10">10 Threads</option>
+        <option value="25">25 Threads</option>
+        <option value="50" selected>50 Threads</option>
+        <option value="100">100 Threads</option>
+        <option value="200">200 Threads (High)</option>
+      </select>
+    </div>
+
+    <!-- Buttons -->
+    <div class="col-12 d-flex gap-3 justify-content-end mt-4">
+      <button type="button" id="btn-stop-scan" class="btn btn-cyber-danger d-none">
+        <i class="fa-solid fa-hand me-2"></i> Stop Scan
+      </button>
+      <button type="button" id="btn-clear-results" class="btn btn-cyber-outline">
+        <i class="fa-solid fa-eraser me-2"></i> Clear
+      </button>
+      <button type="submit" id="btn-start-scan" class="btn btn-cyber-primary">
+        <i class="fa-solid fa-play me-2"></i> Start Port Scan
+      </button>
+    </div>
+  </form>
+</div>
+
+<!-- Progress Bar & Live Status Cards -->
+<div id="scan-progress-section" class="d-none mb-4">
+  <div class="cyber-card">
+    <div class="d-flex justify-content-between align-items-center mb-2">
+      <div class="d-flex align-items-center gap-2">
+        <div class="spinner-border spinner-border-sm text-neon-green" role="status"></div>
+        <span class="fw-bold text-neon-green" id="status-text">Scanning Target...</span>
+      </div>
+      <div class="small text-muted">
+        Progress: <strong class="text-light" id="progress-pct-label">0%</strong> | 
+        ETA: <strong class="text-neon-blue" id="eta-label">0s</strong> | 
+        Speed: <strong class="text-neon-green" id="speed-label">0 ports/s</strong>
+      </div>
+    </div>
+
+    <!-- Progress Bar -->
+    <div class="cyber-progress mb-3">
+      <div class="cyber-progress-bar" id="progress-bar-inner"></div>
+    </div>
+
+    <!-- Real-time Metrics Cards -->
+    <div class="row g-2 text-center">
+      <div class="col">
+        <div class="p-2 border border-secondary border-opacity-10 rounded">
+          <small class="text-muted d-block">ACTIVE THREADS</small>
+          <span class="fw-bold text-neon-blue" id="metric-threads">0</span>
+        </div>
+      </div>
+      <div class="col">
+        <div class="p-2 border border-secondary border-opacity-10 rounded">
+          <small class="text-muted d-block">SCANNED PORTS</small>
+          <span class="fw-bold text-light" id="metric-scanned">0 / 0</span>
+        </div>
+      </div>
+      <div class="col">
+        <div class="p-2 border border-secondary border-opacity-10 rounded">
+          <small class="text-muted d-block">OPEN PORTS</small>
+          <span class="fw-bold text-neon-green" id="metric-open">0</span>
+        </div>
+      </div>
+      <div class="col">
+        <div class="p-2 border border-secondary border-opacity-10 rounded">
+          <small class="text-muted d-block">CLOSED PORTS</small>
+          <span class="fw-bold text-neon-red" id="metric-closed">0</span>
+        </div>
+      </div>
+      <div class="col">
+        <div class="p-2 border border-secondary border-opacity-10 rounded">
+          <small class="text-muted d-block">FILTERED PORTS</small>
+          <span class="fw-bold text-neon-yellow" id="metric-filtered">0</span>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Live Results Table Section -->
+<div class="cyber-card">
+  <div class="cyber-card-header">
+    <h6 class="cyber-card-title"><i class="fa-solid fa-list-check me-2"></i> Live Discovered Results</h6>
+    
+    <div class="d-flex align-items-center gap-3">
+      <div class="input-group input-group-sm" style="width: 220px;">
+        <input type="text" id="table-search" class="form-control cyber-input" placeholder="Search port or service...">
+      </div>
+
+      <div class="btn-group btn-group-sm" role="group">
+        <button type="button" class="btn btn-cyber-outline active" id="filter-all">All</button>
+        <button type="button" class="btn btn-cyber-outline" id="filter-open">Open</button>
+        <button type="button" class="btn btn-cyber-outline" id="filter-closed">Closed</button>
+      </div>
+
+      <a id="btn-export-report" href="#" class="btn btn-sm btn-cyber-primary disabled">
+        <i class="fa-solid fa-file-export me-1"></i> Export Report
+      </a>
+    </div>
+  </div>
+
+  <div class="table-responsive">
+    <table class="cyber-table" id="results-table">
+      <thead>
+        <tr>
+          <th>Port Number</th>
+          <th>Status</th>
+          <th>Service Name</th>
+          <th>Protocol</th>
+          <th>Response Time (RTT)</th>
+          <th>Risk Level</th>
+          <th>Banner / Info</th>
+        </tr>
+      </thead>
+      <tbody id="results-tbody">
+        <tr>
+          <td colspan="7" class="text-center text-muted py-4">No scan execution in progress. Enter a target and click <strong>Start Port Scan</strong>.</td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script src="{{ url_for('static', filename='js/scanner.js') }}"></script>
+{% endblock %}
