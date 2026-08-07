@@ -1,4 +1,4 @@
-/* Dashboard Chart.js Integration */
+/* Dashboard Chart.js Integration - Light Theme */
 document.addEventListener('DOMContentLoaded', async () => {
   try {
     const response = await fetch('/api/stats');
@@ -20,7 +20,7 @@ document.addEventListener('DOMContentLoaded', async () => {
     } else {
       tbody.innerHTML = data.recent_scans.map(s => `
         <tr>
-          <td><strong class="text-light">${s.target}</strong></td>
+          <td><strong class="text-dark">${s.target}</strong></td>
           <td><code>${s.ip}</code></td>
           <td><span class="badge badge-open">${s.open_ports_count} Open</span></td>
           <td><span class="badge ${s.risk_score > 50 ? 'badge-closed' : 'badge-open'}">${s.risk_score}/100</span></td>
@@ -42,7 +42,7 @@ document.addEventListener('DOMContentLoaded', async () => {
         labels: ['Open Ports', 'Closed Ports', 'Filtered Ports'],
         datasets: [{
           data: [data.total_open_ports, data.total_closed_ports, data.total_filtered_ports],
-          backgroundColor: ['#00FF88', '#FF3366', '#FFB800'],
+          backgroundColor: ['#10B981', '#EF4444', '#F59E0B'],
           borderWidth: 0
         }]
       },
@@ -50,7 +50,7 @@ document.addEventListener('DOMContentLoaded', async () => {
         responsive: true,
         maintainAspectRatio: false,
         plugins: {
-          legend: { labels: { color: '#94A3B8', font: { family: 'Inter' } } }
+          legend: { labels: { color: '#475569', font: { family: 'Inter', weight: '600' } } }
         }
       }
     });
@@ -67,7 +67,7 @@ document.addEventListener('DOMContentLoaded', async () => {
         datasets: [{
           label: 'Discovered Occurrences',
           data: serviceCounts.length > 0 ? serviceCounts : [0],
-          backgroundColor: '#00C8FF',
+          backgroundColor: '#2563EB',
           borderRadius: 6
         }]
       },
@@ -75,11 +75,11 @@ document.addEventListener('DOMContentLoaded', async () => {
         responsive: true,
         maintainAspectRatio: false,
         scales: {
-          x: { ticks: { color: '#94A3B8' }, grid: { display: false } },
-          y: { ticks: { color: '#94A3B8', stepSize: 1 }, grid: { color: 'rgba(255,255,255,0.05)' } }
+          x: { ticks: { color: '#475569', font: { weight: '600' } }, grid: { display: false } },
+          y: { ticks: { color: '#475569', stepSize: 1 }, grid: { color: 'rgba(0,0,0,0.06)' } }
         },
         plugins: {
-          legend: { labels: { color: '#94A3B8' } }
+          legend: { labels: { color: '#475569', font: { weight: '600' } } }
         }
       }
     });
