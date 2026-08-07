@@ -1,0 +1,126 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>{% block title %}SecureScan - Advanced Network Port Scanner{% endblock %}</title>
+
+  <!-- Google Fonts & Font Awesome Icons -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Fira+Code:wght@400;600&family=Inter:wght@300;400;600;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  
+  <!-- Bootstrap 5 CSS -->
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+
+  <!-- Custom Neon Cyber CSS -->
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+</head>
+<body>
+
+  <!-- Cyber Node Particle Background Canvas -->
+  <canvas id="particles-canvas"></canvas>
+
+  <!-- Sidebar Navigation -->
+  <aside class="cyber-sidebar">
+    <div class="brand-header">
+      <i class="fa-solid fa-shield-halved brand-icon"></i>
+      <span class="brand-title">SECURESCAN</span>
+    </div>
+
+    <ul class="nav-menu">
+      <li class="nav-item">
+        <a href="/" class="nav-link-cyber {% if request.path == '/' %}active{% endif %}">
+          <i class="fa-solid fa-chart-line"></i>
+          <span>Dashboard</span>
+        </a>
+      </li>
+      <li class="nav-item">
+        <a href="/scanner" class="nav-link-cyber {% if request.path == '/scanner' %}active{% endif %}">
+          <i class="fa-solid fa-radar"></i>
+          <span>Port Scanner</span>
+        </a>
+      </li>
+      <li class="nav-item">
+        <a href="/history" class="nav-link-cyber {% if request.path == '/history' %}active{% endif %}">
+          <i class="fa-solid fa-clock-rotate-left"></i>
+          <span>Scan History</span>
+        </a>
+      </li>
+      <li class="nav-item">
+        <a href="/report" class="nav-link-cyber {% if request.path.startswith('/report') %}active{% endif %}">
+          <i class="fa-solid fa-file-shield"></i>
+          <span>Reports Portal</span>
+        </a>
+      </li>
+      <li class="nav-item">
+        <a href="/settings" class="nav-link-cyber {% if request.path == '/settings' %}active{% endif %}">
+          <i class="fa-solid fa-sliders"></i>
+          <span>Settings</span>
+        </a>
+      </li>
+    </ul>
+
+    <div class="p-3 border-top border-secondary border-opacity-10 text-center">
+      <small class="text-muted" style="font-size: 0.75rem;">
+        <i class="fa-solid fa-lock text-neon-green"></i> Engine v2.4 (Sockets)
+      </small>
+    </div>
+  </aside>
+
+  <!-- Main Content Viewport -->
+  <main class="main-wrapper">
+    <!-- Top Header Bar -->
+    <header class="d-flex justify-content-between align-items-center mb-4 pb-2 border-bottom border-secondary border-opacity-10">
+      <div>
+        <h4 class="fw-bold mb-0 text-light">{% block page_title %}Dashboard Overview{% endblock %}</h4>
+        <small class="text-muted">Cybersecurity Network Intelligence & Multi-Threaded Port Scanner</small>
+      </div>
+
+      <div class="d-flex align-items-center gap-3">
+        <span class="badge badge-open">
+          <i class="fa-solid fa-circle text-neon-green me-1" style="font-size: 0.5rem;"></i> System Ready
+        </span>
+        <button class="btn btn-sm btn-cyber-outline" data-bs-toggle="modal" data-bs-target="#disclaimerModal">
+          <i class="fa-solid fa-triangle-exclamation text-neon-yellow me-1"></i> Ethics & Legal
+        </button>
+      </div>
+    </header>
+
+    <!-- Page Body -->
+    {% block content %}{% endblock %}
+  </main>
+
+  <!-- Ethical & Legal Disclaimer Modal -->
+  <div class="modal fade" id="disclaimerModal" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+      <div class="modal-content cyber-card" style="background: rgba(11, 15, 25, 0.98);">
+        <div class="modal-header border-bottom border-secondary border-opacity-25">
+          <h5 class="modal-title text-neon-yellow">
+            <i class="fa-solid fa-shield-cat me-2"></i> Authorized Security Audit Disclaimer
+          </h5>
+          <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+        </div>
+        <div class="modal-body text-muted small">
+          <p class="text-light fw-bold">IMPORTANT LEGAL AND ETHICAL NOTICE:</p>
+          <p>SecureScan is designed exclusively for educational, internal network administration, and authorized security auditing purposes.</p>
+          <ul>
+            <li>Port scanning without explicit prior permission from the target system owner may violate network policies and computer crime laws.</li>
+            <li>Always ensure you own the target infrastructure or possess explicit authorization before executing scans.</li>
+          </ul>
+        </div>
+        <div class="modal-footer border-top border-secondary border-opacity-25">
+          <button type="button" class="btn btn-sm btn-cyber-primary" data-bs-dismiss="modal">I Understand & Accept</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- JavaScript Libraries -->
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  <script src="{{ url_for('static', filename='js/particles.js') }}"></script>
+  {% block scripts %}{% endblock %}
+</body>
+</html>
