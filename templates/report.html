@@ -1,0 +1,207 @@
+{% extends 'base.html' %}
+
+{% block title %}SecureScan - Audit Report Portal{% endblock %}
+{% block page_title %}Audit Report Portal{% endblock %}
+
+{% block content %}
+<div id="report-container">
+  <div class="text-center text-muted py-5" id="report-loading">
+    <div class="spinner-border text-neon-green mb-3" role="status"></div>
+    <p>Loading scan audit report details...</p>
+  </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+document.addEventListener('DOMContentLoaded', async () => {
+  // Extract scan ID from URL path if present
+  const pathParts = window.location.pathname.split('/');
+  const scanId = pathParts.length > 2 && pathParts[2] ? pathParts[2] : null;
+
+  const container = document.getElementById('report-container');
+
+  if (!scanId) {
+    // Show select scan prompt if no scanId in path
+    try {
+      const res = await fetch('/api/scans');
+      const scans = await res.json();
+
+      if (scans.length === 0) {
+        container.innerHTML = `
+          <div class="cyber-card text-center py-5">
+            <i class="fa-solid fa-folder-open text-muted fs-1 mb-3"></i>
+            <h5 class="text-light">No Audit Reports Found</h5>
+            <p class="text-muted">Run a port scan to generate security audit reports.</p>
+            <a href="/scanner" class="btn btn-cyber-primary mt-2">Go to Port Scanner</a>
+          </div>
+        `;
+        return;
+      }
+
+      container.innerHTML = `
+        <div class="cyber-card">
+          <div class="cyber-card-header">
+            <h6 class="cyber-card-title"><i class="fa-solid fa-file-shield me-2"></i> Select Audit Report to View</h6>
+          </div>
+          <div class="list-group list-group-flush bg-transparent">
+            ${scans.map(s => `
+              <a href="/report/${s.id}" class="list-group-item list-group-item-action bg-transparent text-light border-secondary border-opacity-10 d-flex justify-content-between align-items-center py-3">
+                <div>
+                  <h6 class="mb-1 text-neon-blue">${s.target} (${s.ip})</h6>
+                  <small class="text-muted">Scanned: ${s.created_at} | ${s.open_ports_count} Open Ports Discovered</small>
+                </div>
+                <span class="badge ${s.risk_score > 50 ? 'badge-closed' : 'badge-open'}">Risk: ${s.risk_score}/100</span>
+              </a>
+            `).join('')}
+          </div>
+        </div>
+      `;
+    } catch (err) {
+      container.innerHTML = `<div class="alert alert-danger">Error loading scan reports list.</div>`;
+    }
+    return;
+  }
+
+  // Load specific scan report details
+  try {
+    const res = await fetch(`/api/scans/${scanId}`);
+    if (!res.ok) {
+      container.innerHTML = `<div class="cyber-card text-center py-5"><h5 class="text-neon-red">Scan Report Not Found</h5></div>`;
+      return;
+    }
+    const scan = await res.json();
+
+    let riskLevel = 'LOW';
+    let riskClass = 'text-neon-green';
+    if (scan.risk_score >= 75) { riskLevel = 'CRITICAL'; riskClass = 'text-neon-red'; }
+    else if (scan.risk_score >= 50) { riskLevel = 'HIGH'; riskClass = 'text-neon-red'; }
+    else if (scan.risk_score >= 25) { riskLevel = 'MEDIUM'; riskClass = 'text-neon-yellow'; }
+
+    container.innerHTML = `
+      <!-- Export Action Header -->
+      <div class="cyber-card mb-4">
+        <div class="d-flex justify-content-between align-items-center">
+          <div>
+            <h5 class="text-light mb-1">
+              <i class="fa-solid fa-shield-halved text-neon-green me-2"></i> Security Audit Report: ${scan.target}
+            </h5>
+            <small class="text-muted">Target IP: <code>${scan.ip}</code> | Scan Date: ${scan.created_at}</small>
+          </div>
+
+          <div class="d-flex gap-2">
+            <a href="/api/reports/download/${scan.id}/pdf" class="btn btn-cyber-primary btn-sm">
+              <i class="fa-solid fa-file-pdf me-1"></i> Download PDF
+            </a>
+            <a href="/api/reports/download/${scan.id}/csv" class="btn btn-cyber-outline btn-sm">
+              <i class="fa-solid fa-file-csv me-1"></i> Download CSV
+            </a>
+            <a href="/api/reports/download/${scan.id}/json" class="btn btn-cyber-outline btn-sm">
+              <i class="fa-solid fa-file-code me-1"></i> Download JSON
+            </a>
+          </div>
+        </div>
+      </div>
+
+      <!-- Executive Overview Row -->
+      <div class="row g-3 mb-4">
+        <div class="col-md-3">
+          <div class="cyber-card">
+            <small class="text-muted d-block uppercase">THREAT RISK SCORE</small>
+            <div class="fs-2 fw-bold ${riskClass} mb-1">${scan.risk_score} / 100</div>
+            <span class="badge ${scan.risk_score > 50 ? 'badge-closed' : 'badge-open'}">${riskLevel} THREAT</span>
+          </div>
+        </div>
+
+        <div class="col-md-3">
+          <div class="cyber-card">
+            <small class="text-muted d-block uppercase">DISCOVERED OPEN PORTS</small>
+            <div class="fs-2 fw-bold text-neon-green mb-1">${scan.open_ports_count}</div>
+            <small class="text-muted">Out of ${scan.total_ports} ports scanned</small>
+          </div>
+        </div>
+
+        <div class="col-md-3">
+          <div class="cyber-card">
+            <small class="text-muted d-block uppercase">OPERATING SYSTEM GUESS</small>
+            <div class="fw-bold text-light mt-2 mb-1" style="font-size: 1rem;">${scan.os_guess || 'Generic OS'}</div>
+            <small class="text-muted">Reverse DNS: ${scan.reverse_dns || 'N/A'}</small>
+          </div>
+        </div>
+
+        <div class="col-md-3">
+          <div class="cyber-card">
+            <small class="text-muted d-block uppercase">EXECUTION DURATION</small>
+            <div class="fs-2 fw-bold text-neon-blue mb-1">${scan.duration_seconds}s</div>
+            <small class="text-muted">Threads: ${scan.threads_used || 50} workers</small>
+          </div>
+        </div>
+      </div>
+
+      <!-- Security Recommendations & Remediation Cards -->
+      <div class="cyber-card mb-4">
+        <div class="cyber-card-header">
+          <h6 class="cyber-card-title"><i class="fa-solid fa-triangle-exclamation text-neon-yellow me-2"></i> Security Remediation Guidelines</h6>
+        </div>
+
+        <div class="row g-3">
+          ${(scan.recommendations && scan.recommendations.length > 0) ? scan.recommendations.map(r => `
+            <div class="col-md-6">
+              <div class="p-3 border border-secondary border-opacity-25 rounded bg-dark">
+                <div class="d-flex justify-content-between align-items-center mb-2">
+                  <h6 class="text-light mb-0 fw-bold">${r.title}</h6>
+                  <span class="badge ${r.severity === 'Critical' || r.severity === 'High' ? 'badge-closed' : 'badge-filtered'}">${r.severity}</span>
+                </div>
+                <p class="text-muted small mb-2"><strong>Impact:</strong> ${r.impact}</p>
+                <div class="p-2 rounded bg-black text-neon-green small font-monospace">
+                  <i class="fa-solid fa-shield-cat me-1"></i> ${r.action}
+                </div>
+              </div>
+            </div>
+          `).join('') : '<p class="text-muted">No specific security remediation items required for this scan target.</p>'}
+        </div>
+      </div>
+
+      <!-- Enumerated Open Ports Table -->
+      <div class="cyber-card">
+        <div class="cyber-card-header">
+          <h6 class="cyber-card-title"><i class="fa-solid fa-list-check me-2"></i> Detailed Port Enumeration</h6>
+        </div>
+
+        <div class="table-responsive">
+          <table class="cyber-table">
+            <thead>
+              <tr>
+                <th>Port</th>
+                <th>Status</th>
+                <th>Service Name</th>
+                <th>Protocol</th>
+                <th>Response Time</th>
+                <th>Risk</th>
+                <th>Banner Signature</th>
+              </tr>
+            </thead>
+            <tbody>
+              ${scan.results.map(r => `
+                <tr>
+                  <td><strong class="text-light">${r.port}</strong></td>
+                  <td><span class="badge ${r.status === 'Open' ? 'badge-open' : (r.status === 'Filtered' ? 'badge-filtered' : 'badge-closed')}">${r.status}</span></td>
+                  <td><span class="text-neon-blue">${r.service}</span></td>
+                  <td><code>${r.protocol}</code></td>
+                  <td><small class="text-muted">${r.response_time_ms} ms</small></td>
+                  <td><span class="fw-bold ${r.risk_level === 'High' || r.risk_level === 'Critical' ? 'text-neon-red' : 'text-neon-blue'}">${r.risk_level}</span></td>
+                  <td><small class="text-muted">${r.banner || '-'}</small></td>
+                </tr>
+              `).join('')}
+            </tbody>
+          </table>
+        </div>
+      </div>
+    `;
+
+  } catch (err) {
+    container.innerHTML = `<div class="alert alert-danger">Failed to load report data: ${err.message}</div>`;
+  }
+});
+</script>
+{% endblock %}
