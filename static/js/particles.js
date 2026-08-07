@@ -1,4 +1,4 @@
-/* Cyber Node Network Background Particles */
+/* Node Network Background Particles for Light Theme */
 document.addEventListener('DOMContentLoaded', () => {
   const canvas = document.getElementById('particles-canvas');
   if (!canvas) return;
@@ -19,10 +19,10 @@ document.addEventListener('DOMContentLoaded', () => {
     particles.push({
       x: Math.random() * width,
       y: Math.random() * height,
-      vx: (Math.random() - 0.5) * 0.8,
-      vy: (Math.random() - 0.5) * 0.8,
+      vx: (Math.random() - 0.5) * 0.7,
+      vy: (Math.random() - 0.5) * 0.7,
       radius: Math.random() * 2 + 1,
-      color: Math.random() > 0.5 ? '#00FF88' : '#00C8FF'
+      color: Math.random() > 0.5 ? '#10B981' : '#3B82F6'
     });
   }
 
@@ -40,11 +40,11 @@ document.addEventListener('DOMContentLoaded', () => {
       ctx.beginPath();
       ctx.arc(p.x, p.y, p.radius, 0, Math.PI * 2);
       ctx.fillStyle = p.color;
-      ctx.shadowBlur = 8;
+      ctx.shadowBlur = 4;
       ctx.shadowColor = p.color;
       ctx.fill();
 
-      // Connect nearby particles with subtle glowing lines
+      // Connect nearby particles with subtle light lines
       for (let j = i + 1; j < particles.length; j++) {
         let p2 = particles[j];
         let dx = p.x - p2.x;
@@ -55,7 +55,7 @@ document.addEventListener('DOMContentLoaded', () => {
           ctx.beginPath();
           ctx.moveTo(p.x, p.y);
           ctx.lineTo(p2.x, p2.y);
-          ctx.strokeStyle = `rgba(0, 200, 255, ${0.15 * (1 - dist / 110)})`;
+          ctx.strokeStyle = `rgba(59, 130, 246, ${0.12 * (1 - dist / 110)})`;
           ctx.lineWidth = 0.6;
           ctx.stroke();
         }
