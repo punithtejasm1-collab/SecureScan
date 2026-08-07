@@ -1,0 +1,334 @@
+/* SecureScan Neon Cyberpunk UI Design System */
+:root {
+  --bg-dark: #07090E;
+  --bg-card: rgba(15, 23, 42, 0.75);
+  --bg-card-hover: rgba(30, 41, 59, 0.85);
+  --border-cyber: rgba(0, 255, 136, 0.2);
+  --border-glow: rgba(0, 200, 255, 0.4);
+  
+  --neon-green: #00FF88;
+  --neon-blue: #00C8FF;
+  --neon-yellow: #FFB800;
+  --neon-red: #FF3366;
+  --text-main: #F1F5F9;
+  --text-muted: #94A3B8;
+  --text-dim: #64748B;
+  
+  --font-sans: 'Inter', system-ui, -apple-system, sans-serif;
+  --font-mono: 'Fira Code', monospace;
+}
+
+body {
+  background-color: var(--bg-dark);
+  color: var(--text-main);
+  font-family: var(--font-sans);
+  min-height: 100vh;
+  margin: 0;
+  overflow-x: hidden;
+}
+
+/* Background Cyber Particle Canvas */
+#particles-canvas {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  z-index: -1;
+  pointer-events: none;
+}
+
+/* Sidebar Navigation */
+.cyber-sidebar {
+  width: 250px;
+  background: rgba(11, 15, 25, 0.95);
+  backdrop-filter: blur(12px);
+  border-right: 1px solid rgba(0, 255, 136, 0.15);
+  min-height: 100vh;
+  position: fixed;
+  top: 0;
+  left: 0;
+  z-index: 100;
+  display: flex;
+  flex-direction: column;
+}
+
+.brand-header {
+  padding: 1.5rem 1.25rem;
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+}
+
+.brand-icon {
+  font-size: 1.75rem;
+  color: var(--neon-green);
+  filter: drop-shadow(0 0 8px rgba(0, 255, 136, 0.6));
+}
+
+.brand-title {
+  font-weight: 800;
+  font-size: 1.25rem;
+  letter-spacing: 1px;
+  background: linear-gradient(135deg, var(--neon-green), var(--neon-blue));
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+}
+
+.nav-menu {
+  list-style: none;
+  padding: 1rem 0.75rem;
+  margin: 0;
+  flex: 1;
+}
+
+.nav-item {
+  margin-bottom: 0.5rem;
+}
+
+.nav-link-cyber {
+  display: flex;
+  align-items: center;
+  gap: 0.85rem;
+  padding: 0.75rem 1rem;
+  color: var(--text-muted);
+  text-decoration: none;
+  border-radius: 8px;
+  font-weight: 500;
+  transition: all 0.25s ease;
+  border: 1px solid transparent;
+}
+
+.nav-link-cyber:hover, .nav-link-cyber.active {
+  color: var(--neon-green);
+  background: rgba(0, 255, 136, 0.08);
+  border-color: rgba(0, 255, 136, 0.3);
+  box-shadow: 0 0 12px rgba(0, 255, 136, 0.15);
+}
+
+.nav-link-cyber i {
+  font-size: 1.1rem;
+  width: 20px;
+  text-align: center;
+}
+
+/* Main Content Area */
+.main-wrapper {
+  margin-left: 250px;
+  padding: 2rem;
+  min-height: 100vh;
+}
+
+/* Glassmorphism Cards */
+.cyber-card {
+  background: var(--bg-card);
+  backdrop-filter: blur(16px);
+  border: 1px solid var(--border-cyber);
+  border-radius: 12px;
+  padding: 1.5rem;
+  margin-bottom: 1.5rem;
+  box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.37);
+  transition: all 0.3s ease;
+}
+
+.cyber-card:hover {
+  border-color: var(--neon-blue);
+  box-shadow: 0 8px 32px 0 rgba(0, 200, 255, 0.2);
+}
+
+.cyber-card-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 1.25rem;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+  padding-bottom: 0.75rem;
+}
+
+.cyber-card-title {
+  font-size: 1.1rem;
+  font-weight: 700;
+  color: var(--neon-blue);
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  margin: 0;
+}
+
+/* Metric Display Widgets */
+.metric-value {
+  font-size: 2.2rem;
+  font-weight: 800;
+  font-family: var(--font-mono);
+  color: var(--text-main);
+  margin: 0.25rem 0;
+}
+
+.metric-label {
+  font-size: 0.85rem;
+  color: var(--text-muted);
+  text-transform: uppercase;
+  letter-spacing: 1px;
+}
+
+.text-neon-green { color: var(--neon-green) !important; }
+.text-neon-blue { color: var(--neon-blue) !important; }
+.text-neon-yellow { color: var(--neon-yellow) !important; }
+.text-neon-red { color: var(--neon-red) !important; }
+
+/* Cyber Form Inputs */
+.cyber-input, .cyber-select {
+  background: rgba(15, 23, 42, 0.9) !important;
+  border: 1px solid rgba(0, 200, 255, 0.3) !important;
+  color: var(--text-main) !important;
+  border-radius: 8px !important;
+  padding: 0.65rem 1rem !important;
+  font-family: var(--font-mono) !important;
+}
+
+.cyber-input:focus, .cyber-select:focus {
+  border-color: var(--neon-green) !important;
+  box-shadow: 0 0 12px rgba(0, 255, 136, 0.3) !important;
+  outline: none !important;
+}
+
+/* Cyber Buttons */
+.btn-cyber-primary {
+  background: linear-gradient(135deg, #00FF88, #00C8FF);
+  color: #050B14;
+  font-weight: 700;
+  border: none;
+  padding: 0.65rem 1.5rem;
+  border-radius: 8px;
+  letter-spacing: 0.5px;
+  transition: all 0.25s ease;
+  box-shadow: 0 0 15px rgba(0, 255, 136, 0.4);
+}
+
+.btn-cyber-primary:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 0 25px rgba(0, 255, 136, 0.7);
+  color: #000;
+}
+
+.btn-cyber-danger {
+  background: linear-gradient(135deg, #FF3366, #FF0055);
+  color: #FFF;
+  font-weight: 700;
+  border: none;
+  padding: 0.65rem 1.5rem;
+  border-radius: 8px;
+  transition: all 0.25s ease;
+  box-shadow: 0 0 15px rgba(255, 51, 102, 0.4);
+}
+
+.btn-cyber-danger:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 0 25px rgba(255, 51, 102, 0.7);
+}
+
+.btn-cyber-outline {
+  background: transparent;
+  border: 1px solid var(--neon-blue);
+  color: var(--neon-blue);
+  font-weight: 600;
+  padding: 0.6rem 1.25rem;
+  border-radius: 8px;
+  transition: all 0.25s ease;
+}
+
+.btn-cyber-outline:hover {
+  background: rgba(0, 200, 255, 0.15);
+  color: #fff;
+  box-shadow: 0 0 15px rgba(0, 200, 255, 0.4);
+}
+
+/* Status Badges */
+.badge-status {
+  padding: 0.35em 0.75em;
+  font-size: 0.75rem;
+  font-weight: 700;
+  border-radius: 6px;
+  font-family: var(--font-mono);
+}
+
+.badge-open {
+  background: rgba(0, 255, 136, 0.15);
+  color: var(--neon-green);
+  border: 1px solid var(--neon-green);
+}
+
+.badge-closed {
+  background: rgba(255, 51, 102, 0.15);
+  color: var(--neon-red);
+  border: 1px solid var(--neon-red);
+}
+
+.badge-filtered {
+  background: rgba(255, 184, 0, 0.15);
+  color: var(--neon-yellow);
+  border: 1px solid var(--neon-yellow);
+}
+
+/* Cyber Data Tables */
+.cyber-table {
+  width: 100%;
+  color: var(--text-main);
+  border-collapse: separate;
+  border-spacing: 0 0.4rem;
+}
+
+.cyber-table th {
+  background: rgba(15, 23, 42, 0.9);
+  color: var(--text-muted);
+  font-size: 0.8rem;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  padding: 0.85rem 1rem;
+  border: none;
+}
+
+.cyber-table td {
+  background: rgba(30, 41, 59, 0.4);
+  padding: 0.85rem 1rem;
+  font-family: var(--font-mono);
+  font-size: 0.9rem;
+  border-top: 1px solid rgba(255, 255, 255, 0.03);
+  border-bottom: 1px solid rgba(255, 255, 255, 0.03);
+}
+
+.cyber-table tr:hover td {
+  background: rgba(0, 200, 255, 0.1);
+}
+
+/* Terminal Console Box */
+.terminal-box {
+  background: #030508;
+  border: 1px solid rgba(0, 255, 136, 0.3);
+  border-radius: 8px;
+  padding: 1rem;
+  font-family: var(--font-mono);
+  font-size: 0.85rem;
+  color: var(--neon-green);
+  max-height: 250px;
+  overflow-y: auto;
+  box-shadow: inset 0 0 10px rgba(0, 0, 0, 0.8);
+}
+
+/* Cyber Progress Bar */
+.cyber-progress {
+  height: 12px;
+  background: rgba(15, 23, 42, 0.8);
+  border-radius: 6px;
+  overflow: hidden;
+  border: 1px solid rgba(0, 255, 136, 0.3);
+}
+
+.cyber-progress-bar {
+  background: linear-gradient(90deg, var(--neon-green), var(--neon-blue));
+  height: 100%;
+  width: 0%;
+  transition: width 0.3s ease;
+  box-shadow: 0 0 10px var(--neon-green);
+}
